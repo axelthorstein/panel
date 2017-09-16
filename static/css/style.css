@@ -1,0 +1,13 @@
+#gif-row {
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+.img-responsive {
+	min-width: 100%;
+}
+
+.col-cell {
+	padding-right: 0px;
+	padding-left: 0px;
+}

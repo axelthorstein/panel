@@ -5,49 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
     <title>panl</title>
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    
-    <!--Font Awesome-->
-    <link href="css/font-awesome.css" rel="stylesheet">
-      
-      
-    <!--Project Styling-->
-    <link href="css/main.css" rel="stylesheet">
-      
-      <!--Google Front-->
-      <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
-     
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
-  <body>
-
-
-<!--start of portfolio section-->
+  <body>      
       
-      
-      <section id="portfolio">
-          
-      <div class="section-heading text-center">
-          <img src ="images/sessions_rb.svg">
-          </div> 
-          
+      <section id="portfolio">          
  
     <!-- ROW-->
-        <div class = "row">
+        <div class = "row" id="gif-row">
 
           {% for i in range(24) %}
-            <div class = "col-md-2 col-sm-2 col-xs-4">
+            <div class = "col-md-2 col-sm-2 col-xs-4 col-cell">
                 <div class ="portfolio-thumb">
-                  <img src ="images/square_logo.png" class = "img-responsive" alt="image" id="square-{{i}}">
+                  <img src ="{{ url_for('static', filename='img/black.png') }}" class="img-responsive" alt="image" id="square-{{i}}">
                        <div class = "portfolio-overlay"></div>  
                 </div>
             </div>
@@ -59,24 +34,8 @@
          
                             
 </section>
-      
-
-   
-      
- <footer id ="footer">
-      <div class = "container text-center">
-          
-      </div>
-      
-</footer>
-      
-      
-    
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+            
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
 
     <script type="text/javascript">
@@ -91,7 +50,7 @@
         storageBucket: "panel-180102.appspot.com",
         messagingSenderId: "291322636234"
       };
-    
+
       firebase.initializeApp(config);
 
       var storageRef = firebase.storage().ref();
@@ -118,7 +77,7 @@
 
   function populateGrid(imageName, gridPos) {
 
-    storageRef.child('images/' + imageName + '.gif').getDownloadURL().then(function(url) {
+    storageRef.child('gifs/' + imageName + '.gif').getDownloadURL().then(function(url) {
 
       var img = document.getElementById('square-' + gridPos);
       img.src = url;

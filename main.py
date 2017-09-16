@@ -2,7 +2,7 @@ import logging
 import requests
 import mimetypes
 
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 import pyrebase
 
 from watson_developer_cloud import VisualRecognitionV3
