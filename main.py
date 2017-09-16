@@ -2,8 +2,7 @@ import logging
 import requests
 import mimetypes
 
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, url_for
 import pyrebase
 
 from watson_developer_cloud import VisualRecognitionV3
@@ -48,6 +47,10 @@ def initialize_firebase():
 @app.route('/')
 def addtopanel():
     return "Home"
+
+@app.route('/grid')
+def grid():
+    return render_template('grid.html')
 
 
 @app.route('/images/<id>', methods=["GET"])

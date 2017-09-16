@@ -1,0 +1,25 @@
+#gif-row {
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+.img-responsive {
+	min-width: 100%;
+}
+
+.col-cell {
+	padding-right: 0px;
+	padding-left: 0px;
+}
+
+.section-heading{
+    z-index: 100;
+    position: absolute;
+    color: white;
+    width:100%;
+    align-content: center;
+    color: #F36167;
+    background-color:  teal;
+    min-height: 100%;
+    opacity: 0.4;
+}

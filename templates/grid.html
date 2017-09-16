@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>panl</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  </head>
+  <body>      
+      
+      <section id="portfolio">          
+ 
+      <div class="section-heading text-center">
+          <img src ="images/sessions_rb.svg">
+          <h2></h2>
+        </div> 
+
+        <div class = "row" id="gif-row">
+
+          {% for i in range(24) %}
+            <div class = "col-md-2 col-sm-2 col-xs-4 col-cell">
+                <div class ="portfolio-thumb">
+                  <img src ="{{ url_for('static', filename='img/black.png') }}" class="img-responsive" alt="image" id="square-{{i}}">
+                       <div class = "portfolio-overlay"></div>  
+                </div>
+            </div>
+          {% endfor %}
+
+        </div>  
+                   
+                            
+      </section>
+            
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
+    <script src="static/js/panel.js"></script>
+
+
+  </body>
+</html>
