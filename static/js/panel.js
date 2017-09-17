@@ -1,18 +1,19 @@
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyDTYAGexqXARKksJyCyVmfqpQvDWf7wbJ0",
+  authDomain: "panel-180102.firebaseapp.com",
+  databaseURL: "https://panel-180102.firebaseio.com",
+  projectId: "panel-180102",
+  storageBucket: "panel-180102.appspot.com",
+  messagingSenderId: "291322636234"
+};
 
-  // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyDTYAGexqXARKksJyCyVmfqpQvDWf7wbJ0",
-      authDomain: "panel-180102.firebaseapp.com",
-      databaseURL: "https://panel-180102.firebaseio.com",
-      projectId: "panel-180102",
-      storageBucket: "panel-180102.appspot.com",
-      messagingSenderId: "291322636234"
-    };
+firebase.initializeApp(config);
 
-    firebase.initializeApp(config);
+var storageRef = firebase.storage().ref();
+var database = firebase.database();
 
-    var storageRef = firebase.storage().ref();
-    var database = firebase.database();
+function startGrid() {
 
     counter = 1;
 
@@ -29,7 +30,7 @@
       }
 
     });
-
+}
 
 function populateGrid(imageName, gridPos) {
 

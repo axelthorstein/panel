@@ -52,6 +52,10 @@ def addtopanel():
 def grid():
     return render_template('grid.html')
 
+@app.route('/data')
+def data():
+    return render_template('data.html')
+
 
 @app.route('/images/<id>', methods=["GET"])
 def images(id):
