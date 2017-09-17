@@ -50,9 +50,8 @@ def get_image_url(id):
     return detect_image(image_url + credentials.get_access_token().access_token)
 
 
-def update_gender_aggregate(image_data, id, face):
+def update_gender_aggregate(image_data, face):
     gender_agg = database.reference("data/gender_agg", app=admin).get()
-    database.reference("images/" + id, app=admin).set(image_data)
 
     if face['gender']['score'] > 0.15:
         if not gender_agg:
@@ -64,8 +63,9 @@ def update_gender_aggregate(image_data, id, face):
         database.reference("data/gender_agg", app=admin).update(gender_agg)
 
 
-def update_age_aggregate(image_data, id, face):
+def update_age_aggregate(image_data, face):
     age_agg = database.reference("data/age_agg", app=admin).get()
+
     if not age_agg:
         age_agg = {"avg_age": 20, "num_ages": 1}
     age_agg['avg_age'] = ((age_agg['avg_age'] * age_agg['num_ages'])
@@ -76,10 +76,33 @@ def update_age_aggregate(image_data, id, face):
     database.reference("data/age_agg", app=admin).update(age_agg)
 
 
+def update_age_ranges(image_data, face):
+    age_ranges = database.reference("data/age_ranges", app=admin).get()
+    age_max = str(face['age']['max'])
+    age_min = str(face['age']['min'])
+
+    if not age_ranges:
+        age_ranges = {}
+    if age_max not in age_ranges.keys():
+        age_ranges[age_max] = 1
+    else:
+        age_ranges[age_max] += 1
+
+    if age_min not in age_ranges.keys():
+        age_ranges[age_min] = 1
+    else:
+        age_ranges[age_min] += 1
+
+    database.reference("data/age_ranges", app=admin).update(age_ranges)
+
+
 def update_aggregates(image_data, id):
+    database.reference("images/" + id, app=admin).set(image_data)
+
     for face in image_data:
-        update_gender_aggregate(image_data, id, face)
-        update_age_aggregate(image_data, id, face)
+        update_gender_aggregate(image_data, face)
+        update_age_aggregate(image_data, face)
+        update_age_ranges(image_data, face)
 
 
 @app.route('/images/<id>', methods=["GET"])
