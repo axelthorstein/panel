@@ -19,7 +19,7 @@
     width:100%;
     align-content: center;
     color: #F36167;
-    background-color:  teal;
+    background-color:  white;
     min-height: 100%;
     opacity: 0.4;
 }
@@ -31,4 +31,7 @@
 
 .chart-div {
     padding-top: 5%;
+	margin-top: 20%;
+	width: 50%;
 }
+

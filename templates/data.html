@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>panl - Data</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  </head>
+  <body>      
+      
+      <section id="portfolio">          
+                    
+        <div class="container">
+
+        	<h1>Real-time Data Analytics</h1>
+
+        	<hr>
+
+        	<div class="col-md-6 chart-div">
+		    	<canvas id="gender-ratio" width="300" height="300"></canvas>
+	        	<h4>Gender Ratio</h4>
+        	</div>
+
+        	<div class="col-md-6 chart-div">
+        		<h1 id="age_text"></h1>
+	        	<h4>Average Age</h4>
+        	</div>
+
+
+        </div>
+
+      </section>
+            
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
+    <script src="static/js/panel.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
+    <script type="text/javascript">
+
+    	var newAgeData = {"MALE" : 0,
+    					"FEMALE" : 0}
+
+
+	    database.ref('data/gender_agg').on('child_added', function(childSnapshot, prevChildName) {
+
+	      newAgeData[childSnapshot.key] = childSnapshot.val();
+
+	      console.log(newAgeData);
+	      renderPie(newAgeData);
+
+      	    database.ref('data/gender_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+		      newAgeData[childSnapshot.key] = childSnapshot.val();
+
+		      console.log(newAgeData);
+		      renderPie(newAgeData);
+
+			})
+
+	    });
+
+
+	    database.ref('data/age_agg').on('child_added', function(childSnapshot, prevChildName) {
+
+	      console.log(childSnapshot.val());
+
+	      if (childSnapshot.key == 'avg_age') {
+
+		      document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+	      	    database.ref('data/age_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+			      if (childSnapshot.key == 'avg_age') {
+
+				      console.log(childSnapshot.val());
+					      document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+						}
+
+				})
+			}
+			
+	    });
+
+		function renderPie(newAgeData) {
+
+			var ctx = document.getElementById("gender-ratio");
+
+			var data = {
+				labels: ['Female','Male'],
+			    datasets: [
+			        {
+			            backgroundColor: ['#DA627D','#5AB1BB'],
+			            hoverBackgroundColor: ['#DA627D','#5AB1BB'],
+			            data: [newAgeData['MALE'], newAgeData['FEMALE']],
+			            borderWidth: 2,
+			        }
+			    ]
+			};
+
+			var myDoughnut = new Chart(ctx, {
+			    type: 'doughnut',
+			    data: data,
+			    options: {
+			    	cutoutPercentage: 70,	
+			        responsive: false,
+			        legend: {
+			            display: true,
+			        },
+			    }
+			});
+
+		}
+
+
+		function renderBar(){
+
+			var ctx = document.getElementById("age-chart").getContext('2d');
+
+			var myChart = new Chart(ctx, {
+			    type: 'bar',
+			    data: {
+			        labels: ["Under 15", "15-20", "20-25", "25-30", "30-40", "40+"],
+			        datasets: [{
+			            label: 'Count',
+			            data: [12, 19, 3, 5, 2, 3],
+			            backgroundColor: [
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB'
+			            ],
+			            borderColor: [
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB'
+			            ],
+			            borderWidth: 1
+			        }]
+			    },
+			    options: {
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                }
+			            }]
+			        }
+			    }
+			});
+
+
+		}
+
+
+
+
+    </script>
+
+  </body>
+</html>

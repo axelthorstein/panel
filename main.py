@@ -32,6 +32,10 @@ def detect_image(file_path):
 def grid():
     return render_template('grid.html')
 
+@app.route('/data')
+def data():
+    return render_template('data.html')
+
 
 def get_image_url(id):
     image_url = "https://firebasestorage.googleapis.com/v0/b/panel-180102.appspot.com/o/images%2f" \
