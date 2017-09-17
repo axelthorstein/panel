@@ -5,3 +5,5 @@ Jinja2==2.9.6
 requests==2.18.4
 Pillow==4.2.1
 watson-developer-cloud==0.26.1
+firebase-admin==2.3.0
+google-cloud-storage==1.4.0

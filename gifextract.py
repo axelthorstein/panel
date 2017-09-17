@@ -51,7 +51,7 @@ def analyse_image(path):
     return results
 
 
-def process_image(path, image_location, id, db):
+def process_image(path, image_location, id, db, storage):
     '''
     Iterate the GIF, extracting each frame.
     '''
@@ -84,7 +84,9 @@ def process_image(path, image_location, id, db):
 
             new_frame.paste(im, (0,0), im.convert('RGBA'))
             if i == image_location:
-                db.child("images").child(id).child("image").set(new_frame)
+                new_frame.save("assets/" + id + ".png", "PNG")
+                blob = storage.blob("images/" + id + ".png")
+                blob.upload_from_filename(filename="assets/" + id + ".png")
                 return path
 
             i += 1
@@ -96,7 +98,7 @@ def process_image(path, image_location, id, db):
 
 class GIFError(Exception): pass
 
-def get_frame(gif, id, db):
+def get_frame(gif, id, db, storage):
     frames = 0
     with open(gif, 'rb') as f:
         if f.read(6) not in ('GIF87a', 'GIF89a'):
@@ -123,5 +125,5 @@ def get_frame(gif, id, db):
                 l = ord(f.read(1))
                 if not l: break
                 f.seek(l, 1)
-    return process_image(gif, frames / 2, id, db)
+    return process_image(gif, frames / 2, id, db, storage)
 

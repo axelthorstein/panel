@@ -4,6 +4,12 @@ import mimetypes
 
 from flask import Flask, render_template, url_for
 import pyrebase
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db as database
+from firebase_admin import storage
+from firebase_admin import auth
+from oauth2client.service_account import ServiceAccountCredentials
 
 from watson_developer_cloud import VisualRecognitionV3
 from gifextract import get_frame
@@ -11,42 +17,32 @@ from gifextract import get_frame
 
 app = Flask(__name__)
 
+global admin
+admin = firebase_admin.initialize_app(credentials.Certificate('firebase_credentials.json'), name='panel-180102', options={"databaseURL": "https://panel-180102.firebaseio.com/"})
+
+
 def detect_image(file_path):
-#    import json
+    import json
     watson = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/detect_faces?api_key=9b4cc1ac0342de1c531f65f8c2d4410c42b7357f&version=2016-05-20"
-#    visual_recognition = VisualRecognitionV3('2016-05-20', api_key='9b4cc1ac0342de1c531f65f8c2d4410c42b7357f')
-#    image_data = visual_recognition.detect_faces(images_url=file_path)
-#    print(image_data)
-#    gender = image_data['images'][0]['faces'][0]['gender']['gender']
-#    age = (image_data['images'][0]['faces'][0]['age']['max'], image_data['images'][0]['faces'][0]['age']['min'], image_data['images'][0]['faces'][0]['age']['score'])
-#    return (gender, age)
+    visual_recognition = VisualRecognitionV3('2016-05-20', api_key='9b4cc1ac0342de1c531f65f8c2d4410c42b7357f')
+    image_data = visual_recognition.detect_faces(images_url=file_path)
+    data = []
+    for face in image_data['images'][0]['faces']:
+        data.append(face)
 
-    try:
-        with open(file_path, 'rb') as image:
-            filename = image.name
-            mime_type = mimetypes.guess_type(
-            filename)[0] or 'application/octet-stream'
-            files = {'images_file': (filename, image, mime_type)}
-            json = requests.request(method="POST", url=watson, files=files).json()
-            return json['images'][0]['faces'][0]
-    except:
-        print("An Error occured uploading files")
-
+    return data
 
 def initialize_firebase():
-    config = {
-        "apiKey": "AIzaSyDTYAGexqXARKksJyCyVmfqpQvDWf7wbJ0",
-        "authDomain": "panel-180102.firebaseapp.com",
-        "databaseURL": "https://panel-180102.firebaseio.com",
-        "storageBucket": "https://panel-180102.appspot.com/"
-    }
+    cred = credentials.Certificate('firebase_credentials.json')
+    admin = firebase_admin.initialize_app(cred, name='panel-180102', options={"databaseURL": "https://panel-180102.firebaseio.com/"})
 
-    return  pyrebase.initialize_app(config)
+    return admin
 
+def get_admin():
+    if not firebase_admin:
+        return initialize_firebase()
+    return firebase_admin.get_app()
 
-@app.route('/')
-def addtopanel():
-    return "Home"
 
 @app.route('/grid')
 def grid():
@@ -55,19 +51,48 @@ def grid():
 
 @app.route('/images/<id>', methods=["GET"])
 def images(id):
-    firebase = initialize_firebase()
-    firebase.auth()
-    database = firebase.database()
-    storage = firebase.storage()
+    bucket = storage.bucket(name="panel-180102.appspot.com", app=admin)
 
-    gif_data = storage.child("images/" + id + ".gif")
-    print(storage.credentials)
-    gif = storage.child("images/").child(id + ".gif").get_url(None)
-    print(gif)
-    get_frame(gif, id, database)
-    image_url = database.child("images").child(id).child('image').get_url()
-    image_data = detect_image(image_url)
-    firebase.child("images").child(id).set(image_data)
+    gender_agg = database.reference("data/gender_agg", app=admin).get()
+
+    age_agg = database.reference("data/age_agg", app=admin).get()
+
+    filename = id + ".gif"
+
+    blob = bucket.blob("gifs/" + filename)
+    blob.download_to_filename("assets/" + filename)
+
+    get_frame("assets/" + filename, id, database, bucket)
+
+    #image_url = bucket.blob("images/" + id + ".png").generate_signed_url(100, method="GET", )
+    image_url = "https://firebasestorage.googleapis.com/v0/b/panel-180102.appspot.com/o/images%2f" + id + ".png?alt=media&token="
+    scopes = [
+                        'https://www.googleapis.com/auth/firebase.database',
+                        'https://www.googleapis.com/auth/userinfo.email',
+                        "https://www.googleapis.com/auth/cloud-platform"
+                    ]
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('firebase_credentials.json', scopes)
+
+    image_data = detect_image(image_url + credentials.get_access_token().access_token)
+    for face in image_data:
+        database.reference("images/" + id, app=admin).set(image_data)
+        if face['gender']['score'] > 0.26:
+            if not gender_agg:
+                gender_agg = {"MALE": 0, "FEMALE": 0}
+            if face['gender']['gender'] == "MALE":
+                gender_agg["MALE"] += 1
+            else:
+                print(image_data)
+                gender_agg["FEMALE"] += 1
+            database.reference("data/gender_agg", app=admin).update(gender_agg)
+
+        if not age_agg:
+            age_agg = {"avg_age": 20, "num_ages": 1}
+        age_agg['avg_age'] = ((age_agg['avg_age'] * age_agg['num_ages']) + ((face["age"]["max"] + face["age"]["min"]) / 2)) / (age_agg['num_ages'] + 1)
+        age_agg['num_ages'] += 1
+
+        database.reference("data/age_agg", app=admin).update(age_agg)
+
     return id
 
 
