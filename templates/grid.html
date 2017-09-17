@@ -43,6 +43,72 @@
 
     startGrid();
 
+      var newAgeData = {"MALE" : 0,
+              "FEMALE" : 0}
+
+
+      database.ref('data/gender_agg').on('child_added', function(childSnapshot, prevChildName) {
+
+        newAgeData[childSnapshot.key] = childSnapshot.val();
+
+        console.log(newAgeData);
+        updateColor(newAgeData);
+
+            database.ref('data/gender_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+          newAgeData[childSnapshot.key] = childSnapshot.val();
+
+          console.log(newAgeData);
+          updateColor(newAgeData);
+
+      })
+
+      });
+
+
+      function updateColor(newAgeData) {
+
+        var femalePerc = newAgeData['FEMALE']/newAgeData['MALE'];
+        console.log(femalePerc);
+        
+        overlayDivColor = document.getElementsByClassName('section-heading')[0];
+
+        if (femalePerc > 0.55) {
+          overlayDivColor.style.backgroundColor = "pink";
+        }
+
+        else if (femalePerc > 0.30 && femalePerc < 0.55) {
+          overlayDivColor.style.backgroundColor = "white";
+        }
+
+        else {
+          overlayDivColor.style.backgroundColor = "teal";
+        }
+
+      }
+
+      // database.ref('data/age_agg').on('child_added', function(childSnapshot, prevChildName) {
+
+      //   console.log(childSnapshot.val());
+
+      //   if (childSnapshot.key == 'avg_age') {
+
+      //     document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+      //         database.ref('data/age_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+      //       if (childSnapshot.key == 'avg_age') {
+
+      //         console.log(childSnapshot.val());
+      //           document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+      //       }
+
+      //   })
+      // }
+      
+      // });
+
     </script>
 
 
