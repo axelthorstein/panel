@@ -28,8 +28,8 @@
         	</div>
 
         	<div class="col-md-6 chart-div">
-		    	<canvas id="age-chart" width="300" height="200"></canvas>
-	        	<h4>Age Distribution</h4>
+        		<h1 id="age_text"></h1>
+	        	<h4>Average Age</h4>
         	</div>
 
 
@@ -43,72 +43,126 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
     <script type="text/javascript">
 
-		var ctx = document.getElementById("gender-ratio");
-
-		var data = {
-			labels: ['Female','Male'],
-		    datasets: [
-		        {
-		            backgroundColor: ['#DA627D','#5AB1BB'],
-		            hoverBackgroundColor: ['#DA627D','#5AB1BB'],
-		            data: [300, 200],
-		            borderWidth: 2,
-		        }
-		    ]
-		};
-
-		var myDoughnut = new Chart(ctx, {
-		    type: 'doughnut',
-		    data: data,
-		    options: {
-		    	cutoutPercentage: 70,	
-		        responsive: false,
-		        legend: {
-		            display: true,
-		        },
-		    }
-		});
+    	var newAgeData = {"MALE" : 0,
+    					"FEMALE" : 0}
 
 
+	    database.ref('data/gender_agg').on('child_added', function(childSnapshot, prevChildName) {
 
-		var ctx = document.getElementById("age-chart").getContext('2d');
+	      newAgeData[childSnapshot.key] = childSnapshot.val();
 
-		var myChart = new Chart(ctx, {
-		    type: 'bar',
-		    data: {
-		        labels: ["Under 15", "15-20", "20-25", "25-30", "30-40", "40+"],
-		        datasets: [{
-		            label: 'Count',
-		            data: [12, 19, 3, 5, 2, 3],
-		            backgroundColor: [
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB'
-		            ],
-		            borderColor: [
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB',
-						'#5AB1BB'
-		            ],
-		            borderWidth: 1
-		        }]
-		    },
-		    options: {
-		        scales: {
-		            yAxes: [{
-		                ticks: {
-		                    beginAtZero:true
-		                }
-		            }]
-		        }
-		    }
-		});
+	      console.log(newAgeData);
+	      renderPie(newAgeData);
+
+      	    database.ref('data/gender_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+		      newAgeData[childSnapshot.key] = childSnapshot.val();
+
+		      console.log(newAgeData);
+		      renderPie(newAgeData);
+
+			})
+
+	    });
+
+
+	    database.ref('data/age_agg').on('child_added', function(childSnapshot, prevChildName) {
+
+	      console.log(childSnapshot.val());
+
+	      if (childSnapshot.key == 'avg_age') {
+
+		      document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+	      	    database.ref('data/age_agg').on('child_changed', function(childSnapshot, prevChildName) {
+
+			      if (childSnapshot.key == 'avg_age') {
+
+				      console.log(childSnapshot.val());
+					      document.getElementById("age_text").innerHTML = childSnapshot.val()
+
+						}
+
+				})
+			}
+			
+	    });
+
+		function renderPie(newAgeData) {
+
+			var ctx = document.getElementById("gender-ratio");
+
+			var data = {
+				labels: ['Female','Male'],
+			    datasets: [
+			        {
+			            backgroundColor: ['#DA627D','#5AB1BB'],
+			            hoverBackgroundColor: ['#DA627D','#5AB1BB'],
+			            data: [newAgeData['MALE'], newAgeData['FEMALE']],
+			            borderWidth: 2,
+			        }
+			    ]
+			};
+
+			var myDoughnut = new Chart(ctx, {
+			    type: 'doughnut',
+			    data: data,
+			    options: {
+			    	cutoutPercentage: 70,	
+			        responsive: false,
+			        legend: {
+			            display: true,
+			        },
+			    }
+			});
+
+		}
+
+
+		function renderBar(){
+
+			var ctx = document.getElementById("age-chart").getContext('2d');
+
+			var myChart = new Chart(ctx, {
+			    type: 'bar',
+			    data: {
+			        labels: ["Under 15", "15-20", "20-25", "25-30", "30-40", "40+"],
+			        datasets: [{
+			            label: 'Count',
+			            data: [12, 19, 3, 5, 2, 3],
+			            backgroundColor: [
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB'
+			            ],
+			            borderColor: [
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB',
+							'#5AB1BB'
+			            ],
+			            borderWidth: 1
+			        }]
+			    },
+			    options: {
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                }
+			            }]
+			        }
+			    }
+			});
+
+
+		}
+
 
 
 
