@@ -15,14 +15,14 @@ var database = firebase.database();
 
 function startGrid() {
 
-    counter = 1;
+    counter = 0;
 
     database.ref('images').on('child_added', function(childSnapshot, prevChildName) {
 
       populateGrid(childSnapshot.key, counter);
 
-      if (counter == 24 ) {
-        counter = 1;
+      if (counter == 23 ) {
+        counter = 0;
       }
 
       else {
